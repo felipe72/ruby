@@ -1,4 +1,6 @@
+require 'bcrypt'
 require 'io/console'
+
 data_base = [
   { username: 'mashrur', password: 'pass1' },
   { username: 'jack', password: 'pass2' },
@@ -6,6 +8,20 @@ data_base = [
   { username: 'jonshow', password: 'pass4' },
   { username: 'heisenberg', password: 'pass5' }
 ]
+
+def create_hash_digest(password)
+  BCrypt::Password.create(password)
+end
+
+def verify_hash_digest(password)
+  BCrypt::Password.new(password)
+end
+
+def create_secure_database(data_base)
+  data_base.map { |user| { username: user[:username], password: create_hash_digest(user[:password]) } }
+end
+
+secure_data_base = create_secure_database(data_base)
 
 def print_divider
   25.times { print '-' }
@@ -22,7 +38,7 @@ loop do
   print 'Password: '
   password = gets.chomp
 
-  found = data_base.select { |entry| entry[:username] == username && entry[:password] == password }
+  found = secure_data_base.select { |entry| entry[:username] == username && entry[:password] == password }
 
   if !found.empty?
     puts found
